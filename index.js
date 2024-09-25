@@ -1,51 +1,26 @@
 require("dotenv").config();
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./config/database');
+const authRoutes = require('./routes/authRoutes');
+const noteRoutes = require('./routes/noteRoutes'); // Import note routes
 
-const config = require("./config.json");
-const mongoose = require("mongoose")
+const app = express();
 
-mongoose.connect(config.connectionString)
+// Connect to MongoDB
+connectDB();
 
-const express = require('express')
-const cors = require('cors')
-const app = express()
+app.use(express.json());
+app.use(cors({ origin: "*" }));
 
-const jwt = require("jsonwebtoken");
-const { authenticateToken } = require("./utilities")
-
-app.use(express.json())
-
-app.use(cors(
-    {
-        origin: "*"
-    }
-))
+// Routes
+app.use('/api/auth', authRoutes);   // Authentication routes
+app.use('/api', noteRoutes);   // Notes routes
 
 app.get("/", (req, res) => {
     res.json({ data: "This is NTS server" });
 });
 
-// Create Account
-app.post("/register", async (req, res) => {
-    const { fullName, email, password } = req.body;
-
-    if (!fullName) {
-        return res
-            .status(400)
-            .json({ error: true, message: "Full Name is required" });
-    }
-
-    if (!email) {
-        return res.status(400).json({ error: true, message: "Email is required" });
-    }
-
-    if (!password) {
-        return res
-            .status(400)
-            .json({ error: true, message: "Password is required" });
-    }
-
-})
-
 app.listen(1040, () => {
-    console.log(`Server is Listening on http://localhost:1040`)
-})
+    console.log(`Server is Listening on http://localhost:1040`);
+});
