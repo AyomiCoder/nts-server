@@ -1,3 +1,5 @@
+
+
 {
-    "connectionString":"mongodb+srv://ntsadmin:admin@nts.ucajf.mongodb.net/?retryWrites=true&w=majority&appName=nts"
+    "connectionString":""
 }

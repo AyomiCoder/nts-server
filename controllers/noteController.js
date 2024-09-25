@@ -41,8 +41,36 @@ const getNotes = async (req, res) => {
     }
 };
 
+const getSingleNote = async (req, res) => {
+    const noteId = req.params.id; // Get the note ID from the request parameters
+
+    try {
+        const note = await Note.findOne({ _id: noteId, userId: req.user.userId }); // Find the note by ID and user ID
+
+        if (!note) {
+            return res.status(404).json({ error: true, message: "Note not found" }); // Handle case where note does not exist
+        }
+
+        return res.json({
+            note // Return the found note
+        });
+    } catch (error) {
+        return res.status(500).json({ error: true, message: "An error occurred while fetching the note" });
+    }
+};
+
+
 const searchNotes = async (req, res) => {
     const query = req.query.query;
+
+    // Log the query and user ID for debugging
+    console.log("Search query:", query);
+    console.log("User ID:", req.user.userId);
+
+    // Validate query parameter
+    if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: true, message: "Query parameter is required" });
+    }
 
     try {
         // Simple search by title, content, or tags
@@ -59,9 +87,12 @@ const searchNotes = async (req, res) => {
             notes
         });
     } catch (error) {
+        console.error("Error fetching notes:", error); // Log the error
         return res.status(500).json({ error: true, message: "An error occurred while searching notes" });
     }
 };
+
+
 
 const updateNote = async (req, res) => {
     const { title, content, tags } = req.body;
@@ -131,6 +162,7 @@ const pinNote = async (req, res) => {
 module.exports = {
     createNote,
     getNotes,
+    getSingleNote,
     searchNotes,
     updateNote,
     deleteNote,
