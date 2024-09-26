@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -62,8 +64,14 @@ const login = async (req, res) => {
     }
 
     // Generate JWT token
-    const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+    // const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
 
+           // Generate the JWT token with user data
+           const accessToken = jwt.sign(
+            { userId: user._id, fullName: user.fullName, email: user.email },  // Payload
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '1h' }  // Token expires in 1 hour
+        );
     // Respond with the token
     return res.json({
         accessToken,
@@ -71,28 +79,8 @@ const login = async (req, res) => {
     });
 };
 
-const getUser = async (req, res) => {
-    try {
-        // Find the user by ID (from the token or session)
-        const userId = req.user.userId; // Adjust this if your token has a different structure
-        const user = await User.findById(userId).select('fullName email'); // Select only fullName and email
 
-        if (!user) {
-            return res.status(404).json({ error: true, message: "User not found" });
-        }
-
-        return res.json({
-            error: false,
-            user: {
-                fullName: user.fullName,
-                email: user.email
-            }
-        });
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        return res.status(500).json({ error: true, message: "An error occurred while fetching user data" });
-    }
-};
+  
 
 // Export the functions
-module.exports = { register, login, getUser };
+module.exports = { register, login };

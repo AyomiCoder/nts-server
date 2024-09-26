@@ -1,4 +1,5 @@
 const Note = require('../models/Note');
+const User = require('../models/User'); 
 
 const createNote = async (req, res) => {
     const { title, content, tags } = req.body;
@@ -158,6 +159,41 @@ const pinNote = async (req, res) => {
     }
 };
 
+const getUser = async (req, res) => {
+    try {
+        // Extract user from req.user, this should be set by the authenticateToken middleware
+        const { user } = req;
+
+        // Ensure that req.user contains the expected userId or _id
+        if (!user || !user.userId) {  // Adjust to check for userId instead of _id
+            return res.status(401).json({ error: true, message: "Unauthorized: No user found in the request" });
+        }
+
+        // Find the user in the database using the userId (from JWT payload)
+        const isUser = await User.findById(user.userId);  // Find by userId, since that’s likely the field
+
+        // If user is not found, return a 404 error
+        if (!isUser) {
+            return res.status(404).json({ error: true, message: "User not found" });
+        }
+
+        // Return the user details
+        return res.status(200).json({
+            user: {
+                fullName: isUser.fullName,
+                email: isUser.email,
+                _id: isUser._id,
+                createdOn: isUser.createdOn
+            },
+            message: "User details fetched successfully",
+        });
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return res.status(500).json({ error: true, message: "An error occurred while fetching user data" });
+    }
+};
+
+
 // Exporting all functions at once
 module.exports = {
     createNote,
@@ -166,5 +202,6 @@ module.exports = {
     searchNotes,
     updateNote,
     deleteNote,
-    pinNote
+    pinNote,
+    getUser
 };
