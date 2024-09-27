@@ -64,28 +64,24 @@ const getSingleNote = async (req, res) => {
 const searchNotes = async (req, res) => {
     const query = req.query.query;
 
-    // Log the query and user ID for debugging
-    console.log("Search query:", query);
-    console.log("User ID:", req.user.userId);
-
     // Validate query parameter
     if (!query || typeof query !== 'string') {
         return res.status(400).json({ error: true, message: "Query parameter is required" });
     }
 
     try {
-        // Simple search by title, content, or tags
-        const notes = await Note.find({
+        // Simple search by title, content
+        const matchingNotes = await Note.find({
             userId: req.user.userId,
             $or: [
                 { title: { $regex: query, $options: 'i' } },
-                { content: { $regex: query, $options: 'i' } },
-                { tags: { $regex: query, $options: 'i' } }
+                { content: { $regex: query, $options: 'i' } }
             ]
         });
 
         return res.json({
-            notes
+            notes: matchingNotes,
+            message: "Notes Matching the search query retrieved successfully",
         });
     } catch (error) {
         console.error("Error fetching notes:", error); // Log the error
