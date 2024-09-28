@@ -11,6 +11,6 @@ router.get('/get-user', authenticateToken, getUser);
 router.get('/search-notes', authenticateToken, searchNotes);
 router.put('/notes/:id', authenticateToken, updateNote);
 router.delete('/notes/:id', authenticateToken, deleteNote);
-router.patch('/notes/:id/pin', authenticateToken, pinNote);
+router.patch('/notes/:id', authenticateToken, pinNote); 
 
 module.exports = router;

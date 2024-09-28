@@ -78,7 +78,6 @@ const searchNotes = async (req, res) => {
                 { content: { $regex: query, $options: 'i' } }
             ]
         });
-
         return res.json({
             notes: matchingNotes,
             message: "Notes Matching the search query retrieved successfully",
